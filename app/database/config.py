@@ -9,7 +9,11 @@ class Settings(BaseSettings):
     DB_USER: Optional[str] = None
     DB_PASS: Optional[str] = None
     DB_NAME: Optional[str] = None
-    
+    RABBITMQ_HOST: Optional[str] = None
+    RABBITMQ_PORT: Optional[int] = None
+    RABBITMQ_USER: Optional[str] = None
+    RABBITMQ_PASS: Optional[str] = None
+
     # Application settings
     APP_NAME: Optional[str] = None
     APP_DESCRIPTION: Optional[str] = None
@@ -27,7 +31,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=True
+        case_sensitive=True,
+        extra="ignore"
     )
     
     def validate(self) -> None:

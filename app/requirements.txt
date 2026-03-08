@@ -12,3 +12,5 @@ uvicorn
 Pillow
 torch
 transformers
+pika
+python-multipart
