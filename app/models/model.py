@@ -23,15 +23,15 @@ class Model:
     '''
 
     def predict(self, input_data: str) -> str:
-       # img = Image.open(input_data)
+        img = Image.open(input_data)
         preprocessor = EfficientNetImageProcessor.from_pretrained("dennisjooo/Birds-Classifier-EfficientNetB2")
         model = EfficientNetForImageClassification.from_pretrained("dennisjooo/Birds-Classifier-EfficientNetB2")
         # Preprocessing the input
-        #inputs = preprocessor(img, return_tensors="pt")
+        inputs = preprocessor(img, return_tensors="pt")
         # Running the inference
-        #with torch.no_grad():
-        #    logits = model(**inputs).logits
+        with torch.no_grad():
+            logits = model(**inputs).logits
 
         # Getting the predicted label
-        #predicted_label = logits.argmax(-1).item()
-        return 'ROBIN'#model.config.id2label[predicted_label]
+        predicted_label = logits.argmax(-1).item()
+        return model.config.id2label[predicted_label]

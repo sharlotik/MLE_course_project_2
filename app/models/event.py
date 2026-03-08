@@ -38,7 +38,8 @@ class Event(EventBase, table=True):
         back_populates="events",
         sa_relationship_kwargs={"lazy": "selectin"}
     )
-    prediction: str = Field(..., min_length=1, max_length=100)
+    status: str =  Field(..., min_length=1, max_length=100)
+    prediction: Optional[str] = Field(default=None, min_length=1, max_length=100)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     
     def __str__(self) -> str:
