@@ -1,0 +1,46 @@
+<h1>Private Page 🕵️</h1>
+
+<p>Hello {{ user.email }}!</p>
+
+<p>Welcome to this private page. You can only see if you are logged in!</p>
+
+<div class="wallet-box" style="border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+    <h3>Your balance:</h3>
+    {% if balance is not none %}
+        <p style="font-size: 24px; color: #2ecc71; font-weight: bold;">
+            {{ balance }} $
+        </p>
+    {% else %}
+        <p>Wallet not found. Contact the service.</p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 20px; border: 1px dashed #ccc; padding: 15px;">
+    <h4>Topup</h4>
+    <form action="/wallet/topup" method="post">
+        <input type="number" name="amount" step="0.01" min="1" placeholder="Topup amount" required>
+        <button type="submit" style="background-color: #2ecc71; color: white; border: none; padding: 5px 15px; cursor: pointer;">
+            Topup
+        </button>
+    </form>
+</div>
+
+<div style="margin-top: 30px; padding: 20px; border: 1px solid #ddd;">
+    <h3>Upload image to define the bird: </h3>
+    <form action="/ml/predict" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit" style="background: #3498db; color: white; border: none; padding: 10px;">
+            Answer
+        </button>
+    </form>
+
+    {% if prediction %}
+        <div style="margin-top: 15px; color: blue;">
+            <strong>Brd on your image is :</strong> {{ prediction }}
+        </div>
+    {% endif %}
+</div>
+
+<hr>
+
+{% include '_site_map.html' %}

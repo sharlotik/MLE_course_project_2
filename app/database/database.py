@@ -1,6 +1,10 @@
 from sqlmodel import SQLModel, Session, create_engine 
 from contextlib import contextmanager
 from .config import get_settings
+from models.user import User 
+from models.event import Event
+from models.transaction import Transaction
+from models.wallet import Wallet
 
 def get_database_engine():
     """
