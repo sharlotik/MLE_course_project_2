@@ -17,3 +17,6 @@ python-multipart
 passlib
 python-jose
 Jinja2
+python-multipart
+pytest
+httpx
