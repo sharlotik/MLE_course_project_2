@@ -14,3 +14,6 @@ torch
 transformers
 pika
 python-multipart
+passlib
+python-jose
+Jinja2

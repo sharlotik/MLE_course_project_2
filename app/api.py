@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.home import home_route
+from routes.auth import auth_route
 from routes.user import user_route
 from routes.event import event_router
 from routes.transaction import transaction_router
@@ -10,9 +11,14 @@ from database.database import init_db
 from database.config import get_settings
 import uvicorn
 import logging
+from fastapi.staticfiles import StaticFiles
+import os
+
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+app = FastAPI() 
+app.mount("/uploads", StaticFiles(directory="../data/images"), name="uploads")
 
 def create_application() -> FastAPI:
     """
@@ -41,6 +47,7 @@ def create_application() -> FastAPI:
 
     # Register routes
     app.include_router(home_route, tags=['Home'])
+    app.include_router(auth_route, prefix='/auth', tags=['Auth'])
     app.include_router(user_route, prefix='/api/users', tags=['Users'])
     app.include_router(event_router, prefix='/api/events', tags=['Events'])
     app.include_router(transaction_router, prefix='/api/transactions', tags=['Transactions'])
