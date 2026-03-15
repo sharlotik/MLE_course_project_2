@@ -64,6 +64,7 @@ async def retrieve_event(id: int, session=Depends(get_session)) -> Event:
     logger.info(f"Retrieved event {id}")
     return event
 
+
 """
     @event_router.post("/new")
     async def create_event( creator_id: int, model : Model = Depends(get_model),
@@ -107,7 +108,7 @@ async def upload_image(creator_id: int, file: UploadFile = File(...),
         }
         rm_module.send_task(json.dumps(task_worker))
                    
-        return {"message": f"File {file.filename} uploaded"}
+        return {"message": f"File {file.filename} uploaded", "event_id" : new_event.id}
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -117,7 +118,7 @@ async def upload_image(creator_id: int, file: UploadFile = File(...),
 
 
 @event_router.get("/prediction/{id}") 
-async def retrieve_pediction(id: int, session=Depends(get_session)):
+async def retrieve_prediction(id: int, session=Depends(get_session)):
     try:
         prediction = EventService.get_prediction_by_id(id, session)
     except Exception as e:
