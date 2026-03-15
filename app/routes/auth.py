@@ -40,12 +40,15 @@ async def login_for_access_token(response: Response, form_data: OAuth2PasswordRe
     )
 
 @auth_route.get("/login", response_class=HTMLResponse)
-async def login_get(request: Request):
+async def login_get(request: Request, error: str = None, redirect_to: str = None):
     context = {
         "request": request,
+        "errors": [error] if error else [],
+        "redirect_to": redirect_to
     }
     return templates.TemplateResponse("login.html", context)
-    
+
+   
 @auth_route.post("/login", response_class=HTMLResponse)
 async def login_post(request: Request, session=Depends(get_session)):
     form = LoginForm(request)
@@ -55,12 +58,20 @@ async def login_post(request: Request, session=Depends(get_session)):
             user= UsersService.get_user_by_email(email = form.username, session = session)
             
             if not user:
-                new_user = User(
-                    email=form.username, 
-                    password=hash_password.create_hash(form.password) 
-                )
-                UsersService.create_user(new_user, session)
-                print(f"[yellow]Created new user: {new_user.email}")
+                form.__dict__.get("errors").append(
+                    f"User with this email doesn't exist. Please signup")
+             #   return RedirectResponse(url="/auth/signup", status_code=302)
+                return templates.TemplateResponse("login.html", {
+                    "request": request, 
+                    "redirect_to": "/auth/signup", 
+                    **form.__dict__
+                })
+              #  new_user = User(
+              #      email=form.username, 
+              #      password=hash_password.create_hash(form.password) 
+              #  )
+               # UsersService.create_user(new_user, session)
+                #print(f"[yellow]Created new user: {new_user.email}")
 
             if hash_password.verify_hash(form.password, user.password):
                 access_token = create_access_token(user.email)            
@@ -74,7 +85,9 @@ async def login_post(request: Request, session=Depends(get_session)):
                 return response
             else:
                 form.__dict__.get("errors").append("Incorrect password")
-                return templates.TemplateResponse("login.html", form.__dict__)
+                return templates.TemplateResponse("login.html", 
+                {"request": request, **form.__dict__})
+                #form.__dict__)
 
         except Exception as e:
             print(f"[red]Database Error: {e}")
@@ -85,7 +98,72 @@ async def login_post(request: Request, session=Depends(get_session)):
             #form.__dict__.get("errors").append(f"Dev Error: {e}") 
             #return templates.TemplateResponse("login.html", {"request": request, **form.__dict__})
 
-    return templates.TemplateResponse("login.html", form.__dict__)
+    return templates.TemplateResponse("login.html", 
+    {"request": request, **form.__dict__})
+   # form.__dict__)
+
+@auth_route.get("/signup", response_class=HTMLResponse)
+async def signup_get(request: Request, error: str = None, message: str = None,
+    redirect_to: str = None):
+    context = {
+        "request": request,
+        "errors": [error] if error else [],
+        "messages": [message] if message else [],
+        "redirect_to": redirect_to
+    }
+    return templates.TemplateResponse("signup.html", context)
+
+    
+@auth_route.post("/signup", response_class=HTMLResponse)
+async def signup_post(request: Request, session=Depends(get_session)):
+    form = LoginForm(request)
+    await form.load_data()
+    if await form.is_valid():
+        existing_user = UsersService.get_user_by_email(
+                email=form.username, session=session)
+    
+        if existing_user:
+            form.errors.append("User with this email exists already")
+           # return templates.TemplateResponse("signup.html", 
+            #     {"request": request, **form.__dict__})
+            return templates.TemplateResponse("signup.html", {
+                    "request": request, 
+                    "redirect_to": "/auth/login", 
+                    **form.__dict__
+                })
+            
+        try:
+            new_user = User(
+                email=form.username, 
+                password=hash_password.create_hash(form.password) 
+            )
+
+            UsersService.create_user(new_user, session)
+            form.messages.append(f"Created new user: {new_user.email}. Please, login")
+            #return RedirectResponse(url="/auth/login", status_code=303)
+            return templates.TemplateResponse("signup.html", {
+                    "request": request, 
+                    "redirect_to": "/auth/login", 
+                    **form.__dict__
+                })
+           
+        except Exception as e:
+            print(f"[red]Database Error: {e}")
+            form.__dict__.get("errors").append("Error in connection to database")
+  #  #        return templates.TemplateResponse("signup.html", form.__dict__)
+            return templates.TemplateResponse("signup.html", 
+                               {"request": request, **form.__dict__})
+
+                
+           # import traceback
+            #traceback.print_exc()
+            #form.__dict__.get("errors").append(f"Dev Error: {e}") 
+            #return templates.TemplateResponse("login.html", {"request": request, **form.__dict__})
+
+    
+    #return templates.TemplateResponse("signup.html", form.__dict__)
+    return templates.TemplateResponse("signup.html", {"request": request, **form.__dict__})
+
 
 """
           response = RedirectResponse("/", status.HTTP_302_FOUND)
