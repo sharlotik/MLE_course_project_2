@@ -5,6 +5,7 @@ class LoginForm:
     def __init__(self, request: Request):
         self.request: Request = request
         self.errors: List = []
+        self.messages: List = []
         self.username: Optional[str] = None
         self.password: Optional[str] = None
 
@@ -14,7 +15,9 @@ class LoginForm:
         self.password = form.get("password")
 
     async def is_valid(self):
-        if not self.username or not (self.username.__contains__("@")):
+     
+     #   if not self.username or not (self.username.__contains__("@")):
+        if not self.username or "@" not in str(self.username):    
             self.errors.append("Email is required")
         if not self.password or not len(self.password) >= 1:
             self.errors.append("A valid password is required")
