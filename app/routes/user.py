@@ -45,6 +45,9 @@ async def signup(data: User, session=Depends(get_session)) -> Dict[str, str]:
         logger.info(f"New user registered: {data.email}")
         return {"message": "User successfully registered"}
 
+    except HTTPException:
+        raise
+
     except Exception as e:
         logger.error(f"Error during signup: {str(e)}")
         raise HTTPException(
